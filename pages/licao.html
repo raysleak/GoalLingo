@@ -1,0 +1,23 @@
+<div class="max-w-3xl mx-auto animate-in fade-in duration-500">
+    <div class="flex justify-between items-center mb-8">
+        <h2 class="text-3xl font-bold">🎓 Lição Inteligente</h2>
+        <span class="bg-blue-600 px-4 py-1 rounded-full text-sm font-bold">AI Tutor v1.5</span>
+    </div>
+
+    <div id="setup-lesson" class="bg-gray-800/50 p-8 rounded-3xl border border-white/10 shadow-xl">
+        <p class="mb-4 text-gray-300">Sobre o que você quer praticar hoje?</p>
+        <input type="text" id="topic-input" class="w-full bg-gray-900/50 p-4 rounded-2xl mb-6 outline-none border border-blue-500/30 focus:border-blue-500" placeholder="Ex: Business English, Verbo To Be, Viagens...">
+        <button id="start-lesson" class="w-full bg-blue-600 hover:bg-blue-500 py-4 rounded-2xl font-bold shadow-lg shadow-blue-900/40 transition-all">Gerar Questões com IA</button>
+    </div>
+
+    <div id="lesson-area" class="hidden space-y-6">
+        <div class="bg-gray-800/50 p-8 rounded-3xl border border-white/10 glass">
+            <p id="question-text" class="text-2xl font-medium leading-relaxed"></p>
+        </div>
+        
+        <div id="options-container" class="grid grid-cols-1 gap-4">
+            </div>
+
+        <div id="lesson-feedback" class="p-6 rounded-2xl hidden font-bold text-center"></div>
+    </div>
+</div>

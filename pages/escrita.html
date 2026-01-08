@@ -1,0 +1,18 @@
+<div class="animate-in fade-in">
+    <h2 class="text-3xl font-bold mb-4 text-blue-400">Escrita Criativa com IA</h2>
+    <p class="text-gray-400 mb-6">Pratique sua redação e receba feedback instantâneo.</p>
+    
+    <div class="bg-gray-800 p-6 rounded-2xl border border-gray-700">
+        <textarea id="escrita-input" rows="10" class="w-full bg-gray-900 border-none p-4 rounded-xl text-lg outline-none" placeholder="Write your story or essay here..."></textarea>
+        
+        <div class="flex justify-between items-center mt-4">
+            <select id="escrita-tipo" class="bg-gray-700 p-2 rounded-lg outline-none">
+                <option value="story">História Curta</option>
+                <option value="essay">Redação</option>
+                <option value="others">Outras</option>
+            </select>
+            <button id="btn-corrigir" class="bg-blue-600 hover:bg-blue-500 px-6 py-2 rounded-xl font-bold transition">Analisar Texto</button>
+        </div>
+    </div>
+    <div id="escrita-feedback" class="mt-6 p-6 bg-gray-800 rounded-2xl hidden border-l-4 border-blue-500"></div>
+</div>

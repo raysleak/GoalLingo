@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GoalLingo AI | Personal Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background: #0f172a; color: white; }
+        .glass { background: rgba(30, 41, 59, 0.6); backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.1); }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeInUp 0.5s ease forwards; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .sidebar-btn { transition: all 0.3s; border-radius: 1.25rem; }
+        .sidebar-btn:hover { background: rgba(59, 130, 246, 0.15); }
+        .active-btn { background: #3b82f6 !important; box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3); }
+    </style>
+</head>
+<body class="h-screen flex p-4 gap-4 overflow-hidden">
+
+    <nav class="w-72 glass rounded-[2.5rem] p-6 flex flex-col shadow-2xl">
+        <div class="text-center mb-10">
+            <h1 class="text-3xl font-black text-blue-500 italic tracking-tighter">GOAL<span class="text-white">AI</span></h1>
+        </div>
+
+        <div id="auth-section" class="mb-8 p-4 bg-white/5 rounded-3xl border border-white/5">
+            <div id="user-logged-out">
+                <button onclick="showAuthModal()" class="w-full bg-blue-600 hover:bg-blue-500 py-3 rounded-xl font-bold text-sm transition-all">Entrar no Sistema</button>
+            </div>
+            <div id="user-logged-in" class="hidden">
+                <p class="text-[10px] font-bold text-blue-400 uppercase mb-1">Painel Privado</p>
+                <p id="user-email" class="text-xs truncate text-gray-400 mb-3">email@exemplo.com</p>
+                <button onclick="handleLogout()" class="text-[10px] text-red-400 font-bold uppercase hover:underline">Sair</button>
+            </div>
+        </div>
+
+        <div class="flex flex-col gap-2 flex-1">
+            <button onclick="loadPage('financeiro', this)" class="sidebar-btn p-4 text-left flex items-center gap-3 font-semibold">💰 Financeiro</button>
+            <button onclick="loadPage('escrita', this)" class="sidebar-btn p-4 text-left flex items-center gap-3 font-semibold">✍️ Escrita IA</button>
+            <button onclick="loadPage('licao', this)" class="sidebar-btn p-4 text-left flex items-center gap-3 font-semibold">🎓 Lição com IA</button>
+        </div>
+
+        <div class="mt-auto p-4 bg-gradient-to-br from-blue-600/20 to-indigo-600/20 rounded-3xl border border-blue-500/20">
+            <p class="text-[10px] font-bold text-blue-300 uppercase">Seu Progresso</p>
+            <p class="text-xl font-black">XP: <span id="xp-display">0</span></p>
+            <div class="w-full bg-black/40 h-1.5 rounded-full mt-2">
+                <div id="xp-bar" class="bg-blue-500 h-full rounded-full transition-all duration-700" style="width: 10%"></div>
+            </div>
+        </div>
+    </nav>
+
+    <main id="content" class="flex-1 glass rounded-[2.5rem] p-10 overflow-y-auto shadow-2xl relative">
+        <div id="main-placeholder" class="flex flex-col items-center justify-center h-full text-center">
+            <h2 class="text-5xl font-black mb-4">Bem-vindo, Usuario</h2>
+            <p class="text-gray-400 max-w-md text-lg italic">"The secret of getting ahead is getting started."</p>
+        </div>
+    </main>
+
+    <div id="login-modal" class="fixed inset-0 z-50 flex items-center justify-center hidden bg-black/80 backdrop-blur-md p-4">
+        <div class="glass w-full max-w-sm p-8 rounded-[3rem] shadow-2xl">
+            <h2 class="text-2xl font-black mb-6 text-center">Acesso Restrito</h2>
+            <div class="space-y-4">
+                <input type="email" id="login-email" class="w-full bg-slate-900 border border-white/10 p-4 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500" placeholder="E-mail">
+                <input type="password" id="login-password" class="w-full bg-slate-900 border border-white/10 p-4 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500" placeholder="Senha">
+                <button id="btn-login-exec" class="w-full bg-blue-600 py-4 rounded-2xl font-black text-lg shadow-lg">Entrar</button>
+                <button onclick="closeAuthModal()" class="w-full text-gray-500 text-xs uppercase font-bold tracking-widest">Fechar</button>
+            </div>
+        </div>
+    </div>
+<script>
+// Verifica se o usuário está logado ao carregar a página
+const { data: { user } } = await supabase.auth.getUser();
+
+if (!user) {
+    document.getElementById('content').innerHTML = `
+        <div class="flex flex-col items-center justify-center h-full text-center">
+            <h2 class="text-5xl font-black mb-4">Área Privada</h2>
+            <p class="text-gray-400 mb-8 max-w-md text-lg">Este é um sistema pessoal. Por favor, faça login para acessar suas metas e lições.</p>
+            <button onclick="showAuthModal()" class="bg-blue-600 px-10 py-4 rounded-2xl font-black text-xl hover:scale-105 transition-transform">Desbloquear Painel</button>
+        </div>
+    `;
+}
+</script>
+    <script type="module">
+        import { supabase } from './api/supabase.js';
+        import { askGemini } from './api/gemini.js';
+
+        // Torna global para as páginas carregadas dinamicamente
+        window.askGemini = askGemini;
+        window.supabase = supabase;
+
+        // --- SISTEMA DE NAVEGAÇÃO ---
+        window.loadPage = async (pageName, btn) => {
+            const { data: { user } } = await supabase.auth.getUser();
+            
+            if (!user) {
+                alert("Acesso negado. Por favor, faça login.");
+                showAuthModal();
+                return;
+            }
+
+            document.querySelectorAll('.sidebar-btn').forEach(b => b.classList.remove('active-btn'));
+            if(btn) btn.classList.add('active-btn');
+
+            const content = document.getElementById('content');
+            try {
+                const response = await fetch(`pages/${pageName}.html`);
+                content.innerHTML = await response.text();
+
+                // Carrega script específico
+                const script = document.createElement('script');
+                script.src = `js/${pageName}.js`;
+                script.type = "module";
+                document.body.appendChild(script);
+            } catch (e) {
+                content.innerHTML = "<p>Erro ao carregar a página.</p>";
+            }
+        };
+
+        // --- AUTH LOGIC ---
+        window.showAuthModal = () => document.getElementById('login-modal').classList.remove('hidden');
+        window.closeAuthModal = () => document.getElementById('login-modal').classList.add('hidden');
+
+        document.getElementById('btn-login-exec').onclick = async () => {
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            const { error } = await supabase.auth.signInWithPassword({ email, password });
+            
+            if (error) alert("Credenciais Incorretas");
+            else location.reload();
+        };
+
+        window.handleLogout = async () => {
+            await supabase.auth.signOut();
+            location.reload();
+        };
+
+        // --- OBSERVAR SESSÃO ---
+        supabase.auth.onAuthStateChange((event, session) => {
+            if (session) {
+                document.getElementById('user-logged-out').classList.add('hidden');
+                document.getElementById('user-logged-in').classList.remove('hidden');
+                document.getElementById('user-email').innerText = session.user.email;
+            }
+        });
+    </script>
+</body>
+</html>
